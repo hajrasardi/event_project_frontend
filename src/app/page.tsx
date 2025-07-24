@@ -1,9 +1,10 @@
+import HeroSection from "@/components/sections/HeroSection";
 import Image from "next/image";
 
 export default function Home() {
   return (
     <div className="">
-      <h1>hallo pak abdi</h1>
+      <HeroSection />
     </div>
   );
 }
