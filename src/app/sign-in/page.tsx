@@ -1,91 +1,98 @@
 "use client";
-
-import { useState } from "react";
-import Link from "next/link";
+import * as React from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import FormInput from "@/components/core/formInput";
+import AccountImage from "../../../public/access_account.svg";
+import { apiCall } from "@/helper/apiCall";
+import { useAppDispatch } from "@/lib/redux/hooks";
+import { setSignIn } from "@/lib/redux/features/userSlice";
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const router = useRouter();
+  const dispatch = useAppDispatch();
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle login logic here
+  const emailRef = React.useRef<HTMLInputElement>(null);
+  const passwordRef = React.useRef<HTMLInputElement>(null);
+
+  const onSignIn = async () => {
+    try {
+      const email = emailRef.current?.value;
+      const password = passwordRef.current?.value;
+      if (!email || !password) {
+        alert("Please fill out all fields.");
+        return;
+      }
+      const res = await apiCall.post("/auth/login", { email, password });
+      alert(res.data.result.message);
+      // dispatch(setSignIn(res.data.result)); // store token if needed
+      router.replace("/");
+    } catch (error) {
+      console.error(error);
+      alert("Login failed");
+    }
   };
 
+  React.useEffect(() => {
+    if (localStorage.getItem("tkn")) {
+      router.replace("/");
+    }
+  }, [router]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-800 to-red-700">
-      <div className="bg-white rounded-lg shadow-lg flex w-full max-w-4xl overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-800 via-fuchsia-700 to-red-600">
+      <div className="bg-white rounded-2xl shadow-xl flex w-full max-w-4xl overflow-hidden">
         {/* Left Side - Image */}
-        <div className="hidden md:flex flex-col justify-center items-center w-1/2 bg-gradient-to-br from-purple-700 to-red-600 relative">
+        <div className="hidden md:flex flex-col justify-center items-center w-1/2 bg-gradient-to-br from-purple-700 to-fuchsia-600 relative">
           <Image
-            src="/images/loginregister.jpg"
-            alt="Cinema"
-            width={400}
-            height={500}
-            className="object-cover w-full h-full"
+            src={AccountImage}
+            alt="Sign In Illustration"
+            width={350}
             priority
+            className="m-auto drop-shadow-xl"
           />
-          <div className="absolute inset-0 bg-black/30" />
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white text-2xl font-bold drop-shadow-lg">
+          <div className="absolute bottom-8 text-white text-2xl font-bold drop-shadow-lg">
             Welcome Back!
           </div>
         </div>
+
         {/* Right Side - Form */}
-        <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
-          <h2 className="text-2xl font-bold text-center text-purple-800 mb-6">
+        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center bg-white">
+          <h1 className="text-3xl font-extrabold text-center text-purple-800 mb-6">
             Sign In
-          </h2>
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="block text-gray-700 mb-1" htmlFor="email">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-1" htmlFor="password">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-              />
-            </div>
-            <button
+          </h1>
+          <form
+            className="space-y-6"
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSignIn();
+            }}
+          >
+            <FormInput name="email" type="email" label="Email" ref={emailRef} />
+            <FormInput
+              name="password"
+              type="password"
+              label="Password"
+              ref={passwordRef}
+            />
+            <Button
               type="submit"
-              className="w-full bg-purple-700 text-white py-2 rounded font-semibold hover:bg-purple-800 transition"
+              className="w-full bg-purple-700 text-white py-2 rounded-lg shadow hover:bg-purple-800 transition"
             >
-              Login
-            </button>
+              Sign In
+            </Button>
           </form>
-          <div className="flex justify-between items-center mt-4">
-            <Link
-              href="/sign-up"
-              className="text-sm text-purple-700 hover:underline"
+
+          <p className="text-center mt-6 text-gray-600">
+            Don&apos;t have an account?{" "}
+            <span
+              className="text-purple-700 font-semibold cursor-pointer hover:underline"
+              onClick={() => router.push("/sign-up")}
             >
-              Register
-            </Link>
-            <Link
-              href="/forgot-password"
-              className="text-sm text-red-600 hover:underline"
-            >
-              Forgot Password?
-            </Link>
-          </div>
+              Register here
+            </span>
+          </p>
         </div>
       </div>
     </div>
