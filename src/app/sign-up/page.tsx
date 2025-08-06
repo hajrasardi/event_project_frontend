@@ -26,8 +26,8 @@ export default function RegisterPage() {
       const email = inEmailRef.current?.value;
       const password = passwordRef.current?.value;
       const confPassword = confPasswordRef.current?.value;
-      const phone_number = inPhoneNumberRef.current?.value;
-      const referral = inReferalCodeRef.current?.value;
+      const phoneNumber = inPhoneNumberRef.current?.value;
+      const referralCode = inReferalCodeRef.current?.value;
 
       if (
         !username ||
@@ -35,7 +35,7 @@ export default function RegisterPage() {
         !email ||
         !password ||
         !confPassword ||
-        !phone_number
+        !phoneNumber
       ) {
         alert("Please fill in all required fields.");
         return;
@@ -46,13 +46,13 @@ export default function RegisterPage() {
         return;
       }
 
-      await apiCall.post("/auth/register", {
+      await apiCall.post("/api/auth/register", {
         username,
         name,
         email,
         password,
-        phone_number,
-        referral,
+        phoneNumber,
+        referralCode,
       });
 
       alert("Account registration successful!");

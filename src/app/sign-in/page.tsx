@@ -20,13 +20,22 @@ export default function SignInPage() {
     try {
       const email = emailRef.current?.value;
       const password = passwordRef.current?.value;
+
       if (!email || !password) {
         alert("Please fill out all fields.");
         return;
       }
-      const res = await apiCall.post("/auth/login", { email, password });
-      alert(res.data.result.message);
-      // dispatch(setSignIn(res.data.result)); // store token if needed
+
+      const res = await apiCall.post("/api/auth/login", { email, password });
+      const { message, data } = res.data;
+
+      // ✅ Simpan token ke localStorage
+      localStorage.setItem("tkn", data.token);
+
+      // ✅ Simpan data user ke Redux
+      dispatch(setSignIn(data));
+
+      alert(message);
       router.replace("/");
     } catch (error) {
       console.error(error);
@@ -35,6 +44,7 @@ export default function SignInPage() {
   };
 
   React.useEffect(() => {
+    // ✅ Jika sudah login, redirect ke home
     if (localStorage.getItem("tkn")) {
       router.replace("/");
     }
